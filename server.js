@@ -4,6 +4,8 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
+const sermonRoutes = require('./routes/sermns');
+app.use('/api/sermons', sermonRoutes);
 
 dotenv.config();
 
