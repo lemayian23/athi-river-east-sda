@@ -53,4 +53,42 @@ router.post('/', authenticateToken, async (req, res) {
 //UPDATE sermon
 router.put('/:id', authenticateToken, async (req, res) => {
     const { title, speaker, scripture, descriptin, audio_url, video_url, date, duration } = req.body;
-})
+    try {
+        const [existing] = await db.query('SELECT * FROM sermons WHERE id = ?', [req.params.id]);
+        if (existing.length === 0) return res.status(404).json({ error: 'Sermon not found'});
+
+        await db.query(
+        `UPDATE sermons SET
+            title = COALESCE(?, title),
+            speaker = COALESCE(?,speaker),
+            scripture = COALESCE(?, scripture),
+            description = COALESCE(?, description),
+            audio_url = COALESCE(?, audio_url),
+            video_url = COALESCE(?, video_url),
+            date = COALESCE(?, date),
+            duration = COALESCE(?, duration),
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = ?`,
+        [title, speaker, scripture, description, audio_url, video_url, date, duration, req.params.id]
+        );
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to update sermon' });
+    }
+});
+
+// DELETE sermon (Admin only)
+router.delete('/:id', authenticateToken, requireAdmin, async (req, res) => {
+    try {
+        const [existing] = await db.query('SELECT * FROM sermons WHERE id = ?', [req.params.id]);
+        if (existing.length === 0) return res.status(404).json({ error: 'Sermon not found'});
+        await db.query('DELETE FROM sermons WHERE id = ?', [req.params.id]);
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Failed to delete sermon' });
+    }
+});
+
+module.exports = router;
