@@ -1,90 +1,65 @@
-// routes/auth.js
+// server.js
 const express = require('express');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-const db = require('../database/db');
-const { authenticateToken } = require('../middleware/auth');
-const router = express.Router();
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const dotenv = require('dotenv');
 
-// POST /api/auth/login
-router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
+dotenv.config();
 
-  if (!username || !password) {
-    return res.status(400).json({ error: 'Username and password are required' });
-  }
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-  try {
-    // Query user
-    const [rows] = await db.query('SELECT * FROM users WHERE username = ?', [username]);
-    if (rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
+// Security middleware
+app.use(helmet());
 
-    const user = rows[0];
-    // Compare password with stored hash
-    const validPassword = await bcrypt.compare(password, user.password_hash);
-    if (!validPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
-    }
+// CORS configuration
+app.use(cors({
+  origin: process.env.FRONTEND_URL || '*', // restrict in production
+  credentials: true
+}));
 
-    // Generate JWT
-    const token = jwt.sign(
-      { id: user.id, username: user.username, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per window
+});
+app.use('/api/', limiter);
 
-    res.json({
-      success: true,
-      token,
-      user: {
-        id: user.id,
-        username: user.username,
-        role: user.role
-      }
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error during login' });
-  }
+// Body parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Static files for uploads (we'll create later)
+app.use('/uploads', express.static('uploads'));
+
+// Routes
+const authRoutes = require('./routes/auth');
+app.use('/api/auth', authRoutes);
+
+// Import other routes (we'll add them as we go)
+// const sermonRoutes = require('./routes/sermons');
+// app.use('/api/sermons', authenticateToken, sermonRoutes);
+// etc.
+
+// Public test route (no auth)
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// POST /api/auth/change-password (authenticated)
-router.post('/change-password', authenticateToken, async (req, res) => {
-  const { oldPassword, newPassword } = req.body;
-  const userId = req.user.id;
-
-  if (!oldPassword || !newPassword) {
-    return res.status(400).json({ error: 'Both old and new password are required' });
-  }
-
-  try {
-    // Get current hash
-    const [rows] = await db.query('SELECT password_hash FROM users WHERE id = ?', [userId]);
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const valid = await bcrypt.compare(oldPassword, rows[0].password_hash);
-    if (!valid) {
-      return res.status(401).json({ error: 'Current password is incorrect' });
-    }
-
-    // Hash new password
-    const hashed = await bcrypt.hash(newPassword, 10);
-    await db.query('UPDATE users SET password_hash = ? WHERE id = ?', [hashed, userId]);
-
-    res.json({ success: true, message: 'Password updated successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Server error updating password' });
-  }
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ error: 'Endpoint not found' });
 });
 
-// POST /api/auth/logout (client discards token – we just acknowledge)
-router.post('/logout', (req, res) => {
-  res.json({ success: true });
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal server error' });
 });
 
-module.exports = router;
+// Start server
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
+  console.log(`   Health check: http://localhost:${PORT}/api/health`);
+});
