@@ -5,9 +5,6 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 
-// Serve static files from public directory
-app.use(express.static('public'));
-
 dotenv.config();
 
 const app = express();
@@ -32,6 +29,9 @@ app.use('/api/', limiter);
 // Body parsing
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Serve static files from public directory
+app.use(express.static('public'));
 
 // Static files for uploads (placeholder for now)
 app.use('/uploads', express.static('uploads'));
