@@ -1,32 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    :root { --sda-blue: #1a2a4f; }
-    .bg-sda-blue { background-color: var(--sda-blue); }
-  </style>
 </head>
 <body class="bg-gray-100 h-screen flex items-center justify-center">
-  <div class="bg-white p-8 rounded-lg shadow-lg w-96 max-w-full">
-    <h1 class="text-2xl font-bold text-center text-sda-blue">Admin Login</h1>
+  <div class="bg-white p-8 rounded shadow w-96">
+    <h1 class="text-2xl font-bold text-center">Admin Login</h1>
     <form id="loginForm" class="mt-6">
       <input type="text" id="username" placeholder="Username" value="admin" class="w-full p-2 border rounded mb-3">
       <input type="password" id="password" placeholder="Password" value="Admin123!" class="w-full p-2 border rounded mb-4">
-      <button type="submit" class="w-full bg-sda-blue text-white p-2 rounded hover:opacity-90">Login</button>
+      <button type="submit" class="w-full bg-blue-800 text-white p-2 rounded hover:bg-blue-900">Login</button>
       <div id="errorMsg" class="text-red-500 text-sm mt-2 hidden"></div>
     </form>
+    <div id="debug" class="mt-4 text-xs text-gray-500"></div>
   </div>
 
   <script>
+    // Direct fetch – no external libraries
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
       const errorEl = document.getElementById('errorMsg');
+      const debugEl = document.getElementById('debug');
+
+      errorEl.classList.add('hidden');
+      debugEl.textContent = 'Sending request...';
 
       try {
         const response = await fetch('http://localhost:3000/api/auth/login', {
@@ -34,19 +34,25 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });
+
+        debugEl.textContent = 'Response status: ' + response.status;
+
         const data = await response.json();
+        debugEl.textContent += ' | Response: ' + JSON.stringify(data);
 
         if (data.success) {
           localStorage.setItem('admin_token', data.token);
+          debugEl.textContent += ' | Token stored, redirecting...';
           window.location.href = '/admin/dashboard.html';
         } else {
           errorEl.textContent = data.error || 'Invalid credentials';
           errorEl.classList.remove('hidden');
         }
-      } catch (error) {
-        errorEl.textContent = 'Network error – check console';
+      } catch (err) {
+        errorEl.textContent = 'Network error – see console';
         errorEl.classList.remove('hidden');
-        console.error(error);
+        console.error(err);
+        debugEl.textContent = 'Error: ' + err.message;
       }
     });
   </script>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Sermons</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --sda-blue: #1a2a4f;
+      --sda-light-blue: #2c3e6d;
+      --sda-gold: #c9a03d;
+      --sda-purple: #8e6baf;
+    }
+    .bg-sda-blue { background-color: var(--sda-blue); }
+    .text-sda-gold { color: var(--sda-gold); }
+    .sidebar-link {
+      display: block;
+      padding: 0.75rem 1.5rem;
+      color: #cbd5e1;
+      transition: background 0.2s;
+    }
+    .sidebar-link:hover {
+      background-color: #2c3e6d;
+      color: white;
+    }
+    .sidebar-link.active {
+      background-color: #2c3e6d;
+      color: white;
+      border-right: 4px solid var(--sda-gold);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+    .modal.open {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: 0.5rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 h-screen flex">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-sda-blue text-white flex flex-col flex-shrink-0">
+    <div class="p-4 text-xl font-bold border-b border-gray-700">Athi River SDA</div>
+    <nav class="flex-1 mt-4">
+      <a href="/admin/dashboard.html" data-page="dashboard" class="sidebar-link">📊 Dashboard</a>
+      <a href="/admin/sermons.html" data-page="sermons" class="sidebar-link active">📖 Sermons</a>
+      <a href="#" data-page="events" class="sidebar-link">📅 Events</a>
+      <a href="#" data-page="ministries" class="sidebar-link">👥 Ministries</a>
+      <a href="#" data-page="prayers" class="sidebar-link">🙏 Prayers</a>
+      <a href="#" data-page="settings" class="sidebar-link">⚙️ Settings</a>
+    </nav>
+    <div class="p-4 border-t border-gray-700">
+      <button onclick="logout()" class="text-left text-sm text-gray-400 hover:text-white">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto p-6">
+    <div class="flex justify-between items-center mb-4">
+      <h1 class="text-2xl font-bold text-sda-light-blue">Manage Sermons</h1>
+      <button onclick="openAddModal()" class="bg-sda-blue text-white px-4 py-2 rounded hover:bg-sda-light-blue">+ Add Sermon</button>
+    </div>
+
+    <!-- Search -->
+    <input type="text" id="searchInput" placeholder="Search by title or speaker..." class="w-full p-2 border rounded mb-4">
+
+    <!-- Sermons Table -->
+    <div class="bg-white rounded shadow overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="p-3 text-left">Title</th>
+            <th class="p-3 text-left">Speaker</th>
+            <th class="p-3 text-left">Date</th>
+            <th class="p-3 text-left">Views</th>
+            <th class="p-3 text-left">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="sermonsTableBody">
+          <tr><td colspan="5" class="p-3 text-center text-gray-500">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal for Add/Edit -->
+    <div id="sermonModal" class="modal">
+      <div class="modal-content">
+        <h2 id="modalTitle" class="text-xl font-bold mb-4">Add Sermon</h2>
+        <form id="sermonForm">
+          <input type="hidden" id="sermonId">
+          <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700">Title *</label>
+            <input type="text" id="title" required class="w-full p-2 border rounded">
+          </div>
+          <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700">Speaker *</label>
+            <input type="text" id="speaker" required class="w-full p-2 border rounded">
+          </div>
+          <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700">Scripture</label>
+            <input type="text" id="scripture" class="w-full p-2 border rounded">
+          </div>
+          <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700">Description</label>
+            <textarea id="description" class="w-full p-2 border rounded" rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700">Audio URL</label>
+            <input type="url" id="audioUrl" class="w-full p-2 border rounded" placeholder="https://example.com/sermon.mp3">
+          </div>
+          <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700">Video URL</label>
+            <input type="url" id="videoUrl" class="w-full p-2 border rounded" placeholder="https://youtube.com/watch?v=...">
+          </div>
+          <div class="mb-3">
+            <label class="block text-sm font-medium text-gray-700">Date *</label>
+            <input type="date" id="date" required class="w-full p-2 border rounded">
+          </div>
+          <div class="flex justify-end gap-2">
+            <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded">Cancel</button>
+            <button type="submit" class="px-4 py-2 bg-sda-blue text-white rounded hover:bg-sda-light-blue">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="/admin/admin.js"></script>
+  <script src="/admin/sermons.js"></script>
+  <script>
+    // Check token
+    if (!getToken()) {
+      window.location.href = '/admin/login.html';
+    }
+    highlightNav('sermons');
+  </script>
+</body>
+</html>

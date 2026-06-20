@@ -4,16 +4,44 @@ const cors = require('cors');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
+const path = require('path');
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Security middleware
-app.use(helmet());
+// ========================
+// SECURITY: Custom CSP to allow inline scripts
+// ========================
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdn.tailwindcss.com",
+          "https://cdnjs.cloudflare.com"
+        ],
+        styleSrc: [
+          "'self'",
+          "'unsafe-inline'",
+          "https://cdn.tailwindcss.com",
+          "https://cdnjs.cloudflare.com"
+        ],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'", "http://localhost:3000"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+  })
+);
 
-// CORS configuration
+// CORS
 app.use(cors({
   origin: process.env.FRONTEND_URL || '*',
   credentials: true
@@ -21,7 +49,7 @@ app.use(cors({
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
+  windowMs: 15 * 60 * 1000,
   max: 100
 });
 app.use('/api/', limiter);
@@ -30,41 +58,33 @@ app.use('/api/', limiter);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve static files from public directory
-app.use(express.static('public'));
-
-// Static files for uploads (placeholder for now)
+// Static files
+app.use(express.static(path.join(__dirname, 'public')));
 app.use('/uploads', express.static('uploads'));
 
 // ========================
 // ROUTES
 // ========================
 
-// 1. Authentication routes (login, change password)
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
 
-// 2. Sermon routes (CRUD)
 const sermonRoutes = require('./routes/sermons');
 app.use('/api/sermons', sermonRoutes);
 
-// 3. Event routes
 const eventRoutes = require('./routes/events');
 app.use('/api/events', eventRoutes);
 
-// 4. Ministry routes
 const ministryRoutes = require('./routes/ministries');
 app.use('/api/ministries', ministryRoutes);
 
-// 5. Prayer routes
 const prayerRoutes = require('./routes/prayers');
 app.use('/api/prayers', prayerRoutes);
 
-// 6. Settings routes
 const settingsRoutes = require('./routes/settings');
 app.use('/api/settings', settingsRoutes);
 
-// 7. Public health check
+// Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
@@ -84,6 +104,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
   console.log(`   Health: http://localhost:${PORT}/api/health`);
-  console.log(`   Auth:   http://localhost:${PORT}/api/auth/login`);
-  console.log(`   Sermons: http://localhost:${PORT}/api/sermons`);
+  console.log(`   Admin: http://localhost:${PORT}/admin/login.html`);
 });
