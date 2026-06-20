@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    .bg-gradient-sda { background: linear-gradient(135deg, #1a2a4f 0%, #2c3e6d 100%); }
+    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: #94a3b8; transition: all 0.2s; border-radius: 0.5rem; margin: 0.25rem 0.75rem; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar-link.active { background: rgba(255,255,255,0.15); color: #c9a03d; }
+    .btn-primary { background: linear-gradient(135deg, #1a2a4f, #2c3e6d); color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; transition: all 0.2s; }
+    .btn-primary:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(26,42,79,0.3); }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex">
+  <aside class="w-64 bg-gradient-sda text-white flex flex-col flex-shrink-0 min-h-screen">
+    <div class="p-6 text-xl font-bold border-b border-white/10">⛪ Athi River SDA</div>
+    <nav class="flex-1 mt-4">
+      <a href="/admin/dashboard.html" class="sidebar-link">📊 Dashboard</a>
+      <a href="/admin/sermons.html" class="sidebar-link">📖 Sermons</a>
+      <a href="/admin/events.html" class="sidebar-link">📅 Events</a>
+      <a href="/admin/ministries.html" class="sidebar-link">👥 Ministries</a>
+      <a href="/admin/prayers.html" class="sidebar-link">🙏 Prayers</a>
+      <a href="/admin/settings.html" class="sidebar-link active">⚙️ Settings</a>
+    </nav>
+    <div class="p-6 border-t border-white/10">
+      <button onclick="logout()" class="sidebar-link text-red-300 hover:text-red-200">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <main class="flex-1 p-8 overflow-y-auto">
+    <div class="mb-6"><h1 class="text-3xl font-bold text-gray-800">⚙️ Church Settings</h1><p class="text-gray-500">Update church information</p></div>
+
+    <div class="bg-white rounded-xl shadow p-6 max-w-2xl">
+      <form id="settingsForm">
+        <div class="grid grid-cols-1 gap-4">
+          <div><label class="block text-sm font-medium text-gray-700">Church Name</label><input type="text" id="church_name" class="w-full p-2 border rounded-lg"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Address</label><input type="text" id="church_address" class="w-full p-2 border rounded-lg"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Phone</label><input type="text" id="church_phone" class="w-full p-2 border rounded-lg"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Email</label><input type="email" id="church_email" class="w-full p-2 border rounded-lg"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Sabbath School Time</label><input type="text" id="sabbath_school_time" class="w-full p-2 border rounded-lg"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Divine Service Time</label><input type="text" id="divine_service_time" class="w-full p-2 border rounded-lg"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Vespers Time</label><input type="text" id="vespers_time" class="w-full p-2 border rounded-lg"></div>
+          <div><label class="block text-sm font-medium text-gray-700">AY Time</label><input type="text" id="ay_time" class="w-full p-2 border rounded-lg"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Welcome Message</label><textarea id="welcome_message" rows="2" class="w-full p-2 border rounded-lg"></textarea></div>
+          <div><label class="block text-sm font-medium text-gray-700">Paybill Number</label><input type="text" id="paybill_number" class="w-full p-2 border rounded-lg"></div>
+          <div><label class="block text-sm font-medium text-gray-700">Paybill Account</label><input type="text" id="paybill_account" class="w-full p-2 border rounded-lg"></div>
+        </div>
+        <button type="submit" class="btn-primary mt-6">Save Settings</button>
+        <div id="settingsMessage" class="mt-2 text-sm"></div>
+      </form>
+    </div>
+  </main>
+
+  <script src="/admin/admin.js"></script>
+  <script>
+    if (!getToken()) window.location.href = '/admin/login.html';
+
+    // Load settings
+    async function loadSettings() {
+      try {
+        const settings = await apiRequest('/settings/public');
+        document.getElementById('church_name').value = settings.church_name || '';
+        document.getElementById('church_address').value = settings.church_address || '';
+        document.getElementById('church_phone').value = settings.church_phone || '';
+        document.getElementById('church_email').value = settings.church_email || '';
+        document.getElementById('sabbath_school_time').value = settings.sabbath_school_time || '';
+        document.getElementById('divine_service_time').value = settings.divine_service_time || '';
+        document.getElementById('vespers_time').value = settings.vespers_time || '';
+        document.getElementById('ay_time').value = settings.ay_time || '';
+        document.getElementById('welcome_message').value = settings.welcome_message || '';
+        document.getElementById('paybill_number').value = settings.paybill_number || '';
+        document.getElementById('paybill_account').value = settings.paybill_account || '';
+      } catch (err) { alert('Error loading settings'); }
+    }
+
+    // Save settings
+    document.getElementById('settingsForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const data = {};
+      document.querySelectorAll('#settingsForm input, #settingsForm textarea').forEach(el => {
+        data[el.id] = el.value;
+      });
+      try {
+        await apiRequest('/settings', { method: 'PUT', body: JSON.stringify(data) });
+        document.getElementById('settingsMessage').innerHTML = '<span class="text-green-600">✅ Settings updated successfully</span>';
+        showNotification('Settings saved', 'success');
+      } catch (err) {
+        document.getElementById('settingsMessage').innerHTML = '<span class="text-red-500">❌ Failed to save settings</span>';
+      }
+    });
+
+    loadSettings();
+  </script>
+</body>
+</html>
