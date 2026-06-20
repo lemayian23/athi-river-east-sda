@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Events - Athi River East SDA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --sda-blue: #1a2a4f;
+      --sda-light-blue: #2c3e6d;
+      --sda-gold: #c9a03d;
+      --sda-purple: #8e6baf;
+    }
+    .bg-sda-blue { background-color: var(--sda-blue); }
+    .text-sda-gold { color: var(--sda-gold); }
+    .border-sda-gold { border-color: var(--sda-gold); }
+    .bg-sda-light-blue { background-color: var(--sda-light-blue); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-sda-blue text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold">Athi River East SDA Church</h1>
+        <p class="text-blue-200 text-sm">From 6pm Friday to 6pm Saturday</p>
+      </div>
+      <nav class="mt-4 md:mt-0 space-x-4">
+        <a href="/" class="hover:text-sda-gold">Home</a>
+        <a href="/sermons.html" class="hover:text-sda-gold">Sermons</a>
+        <a href="/events.html" class="hover:text-sda-gold font-semibold text-sda-gold">Events</a>
+        <a href="/ministries.html" class="hover:text-sda-gold">Ministries</a>
+        <a href="/prayer.html" class="hover:text-sda-gold">Prayer</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow p-6">
+      <h2 class="text-2xl font-bold text-sda-light-blue mb-4">Upcoming Events</h2>
+
+      <!-- Filter Tabs -->
+      <div class="flex space-x-4 mb-6 border-b border-gray-200">
+        <button id="upcomingTab" class="py-2 px-4 text-sda-light-blue border-b-2 border-sda-gold font-semibold">Upcoming</button>
+        <button id="pastTab" class="py-2 px-4 text-gray-500 hover:text-sda-light-blue">Past Events</button>
+        <button id="allTab" class="py-2 px-4 text-gray-500 hover:text-sda-light-blue">All Events</button>
+      </div>
+
+      <!-- Events List -->
+      <div id="eventsList" class="space-y-4">
+        <p class="text-gray-500">Loading events...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-sda-blue text-white mt-8 py-6">
+    <div class="container mx-auto px-4 text-center text-sm">
+      <p>Athi River East SDA Church</p>
+      <p class="text-blue-200">© 2026 • Central Kenya Conference</p>
+    </div>
+  </footer>
+
+  <script src="/assets/js/events.js"></script>
+</body>
+</html>
