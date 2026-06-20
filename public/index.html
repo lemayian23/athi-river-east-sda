@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Athi River East SDA Church</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Adventist color scheme */
+    :root {
+      --sda-blue: #1a2a4f;
+      --sda-light-blue: #2c3e6d;
+      --sda-gold: #c9a03d;
+      --sda-purple: #8e6baf;
+    }
+    .bg-sda-blue { background-color: var(--sda-blue); }
+    .bg-sda-light-blue { background-color: var(--sda-light-blue); }
+    .text-sda-gold { color: var(--sda-gold); }
+    .border-sda-gold { border-color: var(--sda-gold); }
+    .bg-sda-purple { background-color: var(--sda-purple); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-sda-blue text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center">
+      <div>
+        <h1 id="churchName" class="text-3xl font-bold">Athi River East SDA Church</h1>
+        <p class="text-blue-200 text-sm">From 6pm Friday to 6pm Saturday</p>
+      </div>
+      <nav class="mt-4 md:mt-0 space-x-4">
+        <a href="/" class="hover:text-sda-gold">Home</a>
+        <a href="/sermons.html" class="hover:text-sda-gold">Sermons</a>
+        <a href="/events.html" class="hover:text-sda-gold">Events</a>
+        <a href="/ministries.html" class="hover:text-sda-gold">Ministries</a>
+        <a href="/prayer.html" class="hover:text-sda-gold">Prayer</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <!-- Welcome & Sabbath Countdown -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Welcome -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-bold text-sda-light-blue mb-2">Welcome</h2>
+        <p id="welcomeMessage" class="text-gray-700">Loading...</p>
+        <div class="mt-4 text-sm text-gray-600">
+          <p><span class="font-semibold">Sabbath School:</span> <span id="sabbathSchoolTime">--</span></p>
+          <p><span class="font-semibold">Divine Service:</span> <span id="divineServiceTime">--</span></p>
+          <p><span class="font-semibold">Vespers:</span> <span id="vespersTime">--</span></p>
+        </div>
+      </div>
+      <!-- Countdown -->
+      <div class="bg-gradient-to-br from-sda-blue to-sda-light-blue text-white rounded-lg shadow p-6 text-center">
+        <h3 class="text-xl font-semibold mb-2">🕯️ Sabbath Countdown</h3>
+        <div id="sabbathStatus" class="text-sm mb-4">Loading...</div>
+        <div id="countdownDisplay" class="grid grid-cols-4 gap-2 max-w-md mx-auto">
+          <div class="bg-white/10 rounded p-2"><span id="days" class="text-2xl font-mono font-bold">00</span><div class="text-xs">Days</div></div>
+          <div class="bg-white/10 rounded p-2"><span id="hours" class="text-2xl font-mono font-bold">00</span><div class="text-xs">Hours</div></div>
+          <div class="bg-white/10 rounded p-2"><span id="minutes" class="text-2xl font-mono font-bold">00</span><div class="text-xs">Mins</div></div>
+          <div class="bg-white/10 rounded p-2"><span id="seconds" class="text-2xl font-mono font-bold">00</span><div class="text-xs">Secs</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sermons & Events -->
+    <div class="grid md:grid-cols-2 gap-6 mt-8">
+      <!-- Recent Sermons -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-sda-light-blue mb-4">Recent Sermons</h3>
+        <div id="recentSermonsList">
+          <p class="text-gray-500">Loading sermons...</p>
+        </div>
+        <a href="/sermons.html" class="inline-block mt-4 text-sda-gold hover:underline">View all →</a>
+      </div>
+      <!-- Upcoming Events -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-sda-light-blue mb-4">Upcoming Events</h3>
+        <div id="upcomingEventsList">
+          <p class="text-gray-500">Loading events...</p>
+        </div>
+        <a href="/events.html" class="inline-block mt-4 text-sda-gold hover:underline">View all →</a>
+      </div>
+    </div>
+
+    <!-- Giving & Prayer -->
+    <div class="grid md:grid-cols-2 gap-6 mt-8">
+      <!-- Give -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-sda-light-blue mb-4">💰 Give Online</h3>
+        <div class="bg-blue-50 p-4 rounded text-center">
+          <p class="font-bold">M-Pesa Paybill: <span id="paybillNumber" class="text-sda-gold">--</span></p>
+          <p>Account: <span id="paybillAccount">--</span></p>
+          <button onclick="copyPaybill()" class="mt-2 bg-sda-blue text-white px-4 py-2 rounded hover:bg-sda-light-blue">Copy Paybill</button>
+        </div>
+      </div>
+      <!-- Prayer Request -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-xl font-bold text-sda-light-blue mb-4">🙏 Prayer Request</h3>
+        <form id="prayerForm">
+          <input type="text" id="prayerName" placeholder="Your Name (optional)" class="w-full p-2 border rounded mb-2">
+          <textarea id="prayerRequest" placeholder="Share your prayer request..." class="w-full p-2 border rounded mb-2" rows="3" required></textarea>
+          <button type="submit" class="bg-sda-purple text-white px-4 py-2 rounded hover:bg-purple-700">Submit Prayer Request</button>
+          <div id="prayerMessage" class="mt-2 text-sm"></div>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-sda-blue text-white mt-8 py-6">
+    <div class="container mx-auto px-4 text-center text-sm">
+      <p id="footerChurchName">Athi River East SDA Church</p>
+      <p id="footerAddress" class="text-blue-200">Loading address...</p>
+      <p id="footerPhone" class="text-blue-200 mt-1"></p>
+      <p class="mt-4 text-blue-300">© 2026 • Central Kenya Conference</p>
+    </div>
+  </footer>
+
+  <script src="/assets/js/main.js"></script>
+</body>
+</html>
