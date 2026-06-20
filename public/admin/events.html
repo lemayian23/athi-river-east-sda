@@ -4,28 +4,29 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Manage Events</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    /* (same styles as sermons.html) – copy from above */
     * { font-family: 'Inter', sans-serif; }
     .bg-gradient-sda { background: linear-gradient(135deg, #1a2a4f 0%, #2c3e6d 100%); }
-    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: #94a3b8; transition: all 0.2s; border-radius: 0.5rem; margin: 0.25rem 0.75rem; }
+    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: #94a3b8; transition: all 0.2s; border-radius: 0.5rem; margin: 0.25rem 0.75rem; text-decoration: none; }
     .sidebar-link:hover { background: rgba(255,255,255,0.1); color: white; }
     .sidebar-link.active { background: rgba(255,255,255,0.15); color: #c9a03d; }
     .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
     .modal.open { display: flex; }
     .modal-content { background: white; padding: 2rem; border-radius: 1rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; animation: slideIn 0.3s ease; }
     @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-    .btn-primary { background: linear-gradient(135deg, #1a2a4f, #2c3e6d); color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; transition: all 0.2s; }
+    .btn-primary { background: linear-gradient(135deg, #1a2a4f, #2c3e6d); color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; border: none; cursor: pointer; }
     .btn-primary:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(26,42,79,0.3); }
-    .btn-danger { background: #ef4444; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; transition: all 0.2s; }
+    .btn-danger { background: #ef4444; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; border: none; cursor: pointer; }
     .btn-danger:hover { background: #dc2626; }
-    .btn-edit { background: #3b82f6; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; transition: all 0.2s; }
+    .btn-edit { background: #3b82f6; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; border: none; cursor: pointer; }
     .btn-edit:hover { background: #2563eb; }
   </style>
 </head>
 <body class="bg-gray-50 min-h-screen flex">
-  <!-- Sidebar (same as before) -->
+  <!-- Sidebar (same as above) -->
   <aside class="w-64 bg-gradient-sda text-white flex flex-col flex-shrink-0 min-h-screen">
     <div class="p-6 text-xl font-bold border-b border-white/10">⛪ Athi River SDA</div>
     <nav class="flex-1 mt-4">
@@ -37,18 +38,17 @@
       <a href="/admin/settings.html" class="sidebar-link">⚙️ Settings</a>
     </nav>
     <div class="p-6 border-t border-white/10">
-      <button onclick="logout()" class="sidebar-link text-red-300 hover:text-red-200">🚪 Logout</button>
+      <button onclick="logout()" class="sidebar-link text-red-300 hover:text-red-200 w-full text-left">🚪 Logout</button>
     </div>
   </aside>
 
-  <!-- Main -->
   <main class="flex-1 p-8 overflow-y-auto">
     <div class="flex justify-between items-center mb-6">
       <div><h1 class="text-3xl font-bold text-gray-800">📅 Events</h1><p class="text-gray-500">Manage church events</p></div>
       <button onclick="openAddModal()" class="btn-primary">+ Add Event</button>
     </div>
 
-    <input type="text" id="searchInput" placeholder="Search events..." class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-sda-gold">
+    <input type="text" id="searchInput" placeholder="Search events..." class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-yellow-500">
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
       <table class="w-full text-sm">
@@ -82,21 +82,19 @@
   <script>
     if (!getToken()) window.location.href = '/admin/login.html';
 
-    // Modal functions
-    function openAddModal() {
+    window.openAddModal = function() {
       document.getElementById('modalTitle').textContent = 'Add Event';
       document.getElementById('eventForm').reset();
       document.getElementById('eventId').value = '';
       document.getElementById('eventModal').classList.add('open');
-    }
-    function closeModal() {
+    };
+    window.closeModal = function() {
       document.getElementById('eventModal').classList.remove('open');
-    }
+    };
     document.getElementById('eventModal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
 
-    // Load events
     let allEvents = [];
     async function loadEvents() {
       try {
@@ -121,15 +119,11 @@
         </tr>
       `).join('');
     }
-
-    // Search
     document.getElementById('searchInput').addEventListener('input', function() {
       const q = this.value.toLowerCase();
       renderTable(allEvents.filter(e => e.title.toLowerCase().includes(q)));
     });
-
-    // Edit
-    async function editEvent(id) {
+    window.editEvent = async function(id) {
       try {
         const e = await apiRequest(`/events/${id}`);
         document.getElementById('modalTitle').textContent = 'Edit Event';
@@ -142,19 +136,15 @@
         document.getElementById('imageUrl').value = e.image_url || '';
         document.getElementById('eventModal').classList.add('open');
       } catch (err) { alert('Error loading event'); }
-    }
-
-    // Delete
-    async function deleteEvent(id) {
+    };
+    window.deleteEvent = async function(id) {
       if (!confirm('Delete this event?')) return;
       try {
         await apiRequest(`/events/${id}`, { method: 'DELETE' });
         showNotification('Event deleted', 'success');
         loadEvents();
       } catch (err) { alert('Failed to delete'); }
-    }
-
-    // Form submit
+    };
     document.getElementById('eventForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const id = document.getElementById('eventId').value;
