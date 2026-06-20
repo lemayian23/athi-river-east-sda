@@ -22,44 +22,15 @@
     }
     .sidebar-link:hover { background: rgba(255,255,255,0.1); color: white; }
     .sidebar-link.active { background: rgba(255,255,255,0.15); color: #c9a03d; }
-    .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(4px);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); justify-content: center; align-items: center; z-index: 1000; }
     .modal.open { display: flex; }
-    .modal-content {
-      background: white;
-      padding: 2rem;
-      border-radius: 1rem;
-      max-width: 600px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
-      animation: slideIn 0.3s ease;
-    }
-    @keyframes slideIn {
-      from { transform: translateY(-20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, #1a2a4f, #2c3e6d);
-      color: white;
-      padding: 0.5rem 1.5rem;
-      border-radius: 0.5rem;
-      transition: all 0.2s;
-      border: none;
-      cursor: pointer;
-    }
+    .modal-content { background: white; padding: 2rem; border-radius: 1rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .btn-primary { background: linear-gradient(135deg, #1a2a4f, #2c3e6d); color: white; padding: 0.5rem 1.5rem; border-radius: 0.5rem; transition: all 0.2s; border: none; cursor: pointer; }
     .btn-primary:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(26,42,79,0.3); }
-    .btn-danger { background: #ef4444; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-danger { background: #ef4444; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; border: none; cursor: pointer; }
     .btn-danger:hover { background: #dc2626; }
-    .btn-edit { background: #3b82f6; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; transition: all 0.2s; border: none; cursor: pointer; }
+    .btn-edit { background: #3b82f6; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; border: none; cursor: pointer; }
     .btn-edit:hover { background: #2563eb; }
   </style>
 </head>
@@ -87,13 +58,11 @@
       <button onclick="openAddModal()" class="btn-primary">+ Add Sermon</button>
     </div>
 
-    <input type="text" id="searchInput" placeholder="Search by title or speaker..." class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+    <input type="text" id="searchInput" placeholder="Search by title or speaker..." class="w-full p-3 border rounded-lg mb-4 focus:ring-2 focus:ring-yellow-500">
 
     <div class="bg-white rounded-xl shadow overflow-hidden">
       <table class="w-full text-sm">
-        <thead class="bg-gray-50">
-          <tr><th class="p-4 text-left">Title</th><th class="p-4 text-left">Speaker</th><th class="p-4 text-left">Date</th><th class="p-4 text-left">Views</th><th class="p-4 text-left">Actions</th></tr>
-        </thead>
+        <thead class="bg-gray-50"><tr><th class="p-4 text-left">Title</th><th class="p-4 text-left">Speaker</th><th class="p-4 text-left">Date</th><th class="p-4 text-left">Views</th><th class="p-4 text-left">Actions</th></tr></thead>
         <tbody id="sermonsTableBody"><tr><td colspan="5" class="p-4 text-center text-gray-500">Loading...</td></tr></tbody>
       </table>
     </div>
@@ -112,7 +81,7 @@
           <div class="mb-3"><label class="block text-sm font-medium text-gray-700">Video URL</label><input type="url" id="videoUrl" class="w-full p-2 border rounded-lg" placeholder="https://youtube.com/watch?v=..."></div>
           <div class="mb-4"><label class="block text-sm font-medium text-gray-700">Date *</label><input type="date" id="date" required class="w-full p-2 border rounded-lg"></div>
           <div class="flex justify-end gap-2">
-            <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-50 cursor-pointer">Cancel</button>
+            <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">Cancel</button>
             <button type="submit" class="btn-primary">Save Sermon</button>
           </div>
         </form>
@@ -122,27 +91,31 @@
 
   <script src="/admin/admin.js"></script>
   <script>
-    if (!getToken()) window.location.href = '/admin/login.html';
+    // ===== Check auth =====
+    if (!getToken()) {
+      window.location.href = '/admin/login.html';
+    }
 
-    // Modal functions
-    function openAddModal() {
+    // ===== Modal functions =====
+    window.openAddModal = function() {
       document.getElementById('modalTitle').textContent = 'Add Sermon';
       document.getElementById('sermonForm').reset();
       document.getElementById('sermonId').value = '';
       document.getElementById('sermonModal').classList.add('open');
-    }
+    };
 
-    function closeModal() {
+    window.closeModal = function() {
       document.getElementById('sermonModal').classList.remove('open');
-    }
+    };
 
-    // Close modal on background click
+    // Close on background click
     document.getElementById('sermonModal').addEventListener('click', function(e) {
       if (e.target === this) closeModal();
     });
 
-    // Load sermons
+    // ===== Load sermons =====
     let allSermons = [];
+
     async function loadSermons() {
       try {
         allSermons = await apiRequest('/sermons');
@@ -169,14 +142,14 @@
       `).join('');
     }
 
-    // Search
+    // ===== Search =====
     document.getElementById('searchInput').addEventListener('input', function() {
       const q = this.value.toLowerCase();
       renderTable(allSermons.filter(s => s.title.toLowerCase().includes(q) || s.speaker.toLowerCase().includes(q)));
     });
 
-    // Edit
-    async function editSermon(id) {
+    // ===== Edit =====
+    window.editSermon = async function(id) {
       try {
         const s = await apiRequest(`/sermons/${id}`);
         document.getElementById('modalTitle').textContent = 'Edit Sermon';
@@ -190,19 +163,19 @@
         document.getElementById('date').value = s.date;
         document.getElementById('sermonModal').classList.add('open');
       } catch (err) { alert('Error loading sermon'); }
-    }
+    };
 
-    // Delete
-    async function deleteSermon(id) {
+    // ===== Delete =====
+    window.deleteSermon = async function(id) {
       if (!confirm('Delete this sermon?')) return;
       try {
         await apiRequest(`/sermons/${id}`, { method: 'DELETE' });
         showNotification('Sermon deleted successfully', 'success');
         loadSermons();
       } catch (err) { alert('Failed to delete'); }
-    }
+    };
 
-    // Form submit
+    // ===== Form submit =====
     document.getElementById('sermonForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const id = document.getElementById('sermonId').value;
@@ -218,10 +191,10 @@
       try {
         if (id) {
           await apiRequest(`/sermons/${id}`, { method: 'PUT', body: JSON.stringify(data) });
-          showNotification('Sermon updated successfully', 'success');
+          showNotification('Sermon updated', 'success');
         } else {
           await apiRequest('/sermons', { method: 'POST', body: JSON.stringify(data) });
-          showNotification('Sermon created successfully', 'success');
+          showNotification('Sermon created', 'success');
         }
         closeModal();
         loadSermons();
