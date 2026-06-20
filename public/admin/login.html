@@ -1,32 +1,55 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    .bg-gradient-sda {
+      background: linear-gradient(135deg, #1a2a4f 0%, #2c3e6d 50%, #4a90e2 100%);
+    }
+    .login-card {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .input-focus:focus {
+      box-shadow: 0 0 0 3px rgba(201, 160, 61, 0.3);
+      border-color: #c9a03d;
+    }
+  </style>
 </head>
-<body class="bg-gray-100 h-screen flex items-center justify-center">
-  <div class="bg-white p-8 rounded shadow w-96">
-    <h1 class="text-2xl font-bold text-center">Admin Login</h1>
-    <form id="loginForm" class="mt-6">
-      <input type="text" id="username" placeholder="Username" value="admin" class="w-full p-2 border rounded mb-3">
-      <input type="password" id="password" placeholder="Password" value="Admin123!" class="w-full p-2 border rounded mb-4">
-      <button type="submit" class="w-full bg-blue-800 text-white p-2 rounded hover:bg-blue-900">Login</button>
-      <div id="errorMsg" class="text-red-500 text-sm mt-2 hidden"></div>
+<body class="bg-gradient-sda min-h-screen flex items-center justify-center p-4">
+  <div class="login-card rounded-2xl shadow-2xl w-full max-w-md p-8">
+    <div class="text-center mb-8">
+      <div class="w-20 h-20 mx-auto bg-gradient-to-r from-sda-blue to-sda-light-blue rounded-full flex items-center justify-center text-3xl shadow-lg">⛪</div>
+      <h1 class="text-2xl font-bold text-gray-800 mt-4">Athi River East SDA</h1>
+      <p class="text-gray-500 text-sm">Admin Panel</p>
+    </div>
+    
+    <form id="loginForm">
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+        <input type="text" id="username" value="admin" class="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition">
+      </div>
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+        <input type="password" id="password" value="Admin123!" class="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition">
+      </div>
+      <button type="submit" class="w-full bg-gradient-to-r from-sda-blue to-sda-light-blue text-white py-2 rounded-lg hover:shadow-lg transition transform hover:scale-[1.02]">Sign In</button>
+      <div id="errorMsg" class="text-red-500 text-sm mt-3 hidden"></div>
     </form>
-    <div id="debug" class="mt-4 text-xs text-gray-500"></div>
   </div>
 
   <script>
-    // Direct fetch – no external libraries
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
       const errorEl = document.getElementById('errorMsg');
-      const debugEl = document.getElementById('debug');
-
-      errorEl.classList.add('hidden');
-      debugEl.textContent = 'Sending request...';
 
       try {
         const response = await fetch('http://localhost:3000/api/auth/login', {
@@ -34,25 +57,18 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });
-
-        debugEl.textContent = 'Response status: ' + response.status;
-
         const data = await response.json();
-        debugEl.textContent += ' | Response: ' + JSON.stringify(data);
 
         if (data.success) {
           localStorage.setItem('admin_token', data.token);
-          debugEl.textContent += ' | Token stored, redirecting...';
           window.location.href = '/admin/dashboard.html';
         } else {
           errorEl.textContent = data.error || 'Invalid credentials';
           errorEl.classList.remove('hidden');
         }
       } catch (err) {
-        errorEl.textContent = 'Network error – see console';
+        errorEl.textContent = 'Network error';
         errorEl.classList.remove('hidden');
-        console.error(err);
-        debugEl.textContent = 'Error: ' + err.message;
       }
     });
   </script>
