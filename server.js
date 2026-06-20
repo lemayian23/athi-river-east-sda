@@ -5,6 +5,9 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const dotenv = require('dotenv');
 
+// Serve static files from public directory
+app.use(express.static('public'));
+
 dotenv.config();
 
 const app = express();
