@@ -49,7 +49,11 @@ app.use('/api/sermons', sermonRoutes);
 const eventRoutes = require('./routes/events');
 app.use('/api/events', eventRoutes);
 
-// 4. Public health check
+// 4. Ministry routes
+const ministryRoutes = require('./routes/ministries');
+app.use('/api/ministries', ministryRoutes);
+
+// 5. Public health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
