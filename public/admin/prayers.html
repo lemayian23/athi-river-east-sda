@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Prayers</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+    * { font-family: 'Inter', sans-serif; }
+    .bg-gradient-sda { background: linear-gradient(135deg, #1a2a4f 0%, #2c3e6d 100%); }
+    .sidebar-link { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: #94a3b8; transition: all 0.2s; border-radius: 0.5rem; margin: 0.25rem 0.75rem; }
+    .sidebar-link:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar-link.active { background: rgba(255,255,255,0.15); color: #c9a03d; }
+    .btn-success { background: #22c55e; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; transition: all 0.2s; }
+    .btn-success:hover { background: #16a34a; }
+    .btn-danger { background: #ef4444; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; transition: all 0.2s; }
+    .btn-danger:hover { background: #dc2626; }
+    .btn-answer { background: #8b5cf6; color: white; padding: 0.25rem 1rem; border-radius: 0.5rem; transition: all 0.2s; }
+    .btn-answer:hover { background: #7c3aed; }
+    .answered { background-color: #f0fdf4; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen flex">
+  <aside class="w-64 bg-gradient-sda text-white flex flex-col flex-shrink-0 min-h-screen">
+    <div class="p-6 text-xl font-bold border-b border-white/10">⛪ Athi River SDA</div>
+    <nav class="flex-1 mt-4">
+      <a href="/admin/dashboard.html" class="sidebar-link">📊 Dashboard</a>
+      <a href="/admin/sermons.html" class="sidebar-link">📖 Sermons</a>
+      <a href="/admin/events.html" class="sidebar-link">📅 Events</a>
+      <a href="/admin/ministries.html" class="sidebar-link">👥 Ministries</a>
+      <a href="/admin/prayers.html" class="sidebar-link active">🙏 Prayers</a>
+      <a href="/admin/settings.html" class="sidebar-link">⚙️ Settings</a>
+    </nav>
+    <div class="p-6 border-t border-white/10">
+      <button onclick="logout()" class="sidebar-link text-red-300 hover:text-red-200">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <main class="flex-1 p-8 overflow-y-auto">
+    <div class="mb-6"><h1 class="text-3xl font-bold text-gray-800">🙏 Prayer Requests</h1><p class="text-gray-500">View and manage prayer requests</p></div>
+
+    <div class="bg-white rounded-xl shadow overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-gray-50"><tr><th class="p-4 text-left">Request</th><th class="p-4 text-left">Name</th><th class="p-4 text-left">Date</th><th class="p-4 text-left">Status</th><th class="p-4 text-left">Actions</th></tr></thead>
+        <tbody id="prayersTableBody"><tr><td colspan="5" class="p-4 text-center text-gray-500">Loading...</td></tr></tbody>
+      </table>
+    </div>
+  </main>
+
+  <script src="/admin/admin.js"></script>
+  <script>
+    if (!getToken()) window.location.href = '/admin/login.html';
+
+    async function loadPrayers() {
+      try {
+        const prayers = await apiRequest('/prayers');
+        renderTable(prayers);
+      } catch (err) {
+        document.getElementById('prayersTableBody').innerHTML = '<tr><td colspan="5" class="p-4 text-center text-red-500">Error loading</td></tr>';
+      }
+    }
+
+    function renderTable(data) {
+      const tbody = document.getElementById('prayersTableBody');
+      if (!data.length) return tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-gray-500">No prayers</td></tr>';
+      tbody.innerHTML = data.map(p => `
+        <tr class="border-t hover:bg-gray-50 ${p.is_answered ? 'answered' : ''}">
+          <td class="p-4">${p.request}</td>
+          <td class="p-4">${p.name || 'Anonymous'}</td>
+          <td class="p-4">${new Date(p.created_at).toLocaleDateString()}</td>
+          <td class="p-4">${p.is_answered ? '✅ Answered' : '⏳ Pending'}</td>
+          <td class="p-4 space-x-1">
+            ${!p.is_answered ? `<button onclick="markAnswered(${p.id})" class="btn-answer">Mark Answered</button>` : ''}
+            <button onclick="deletePrayer(${p.id})" class="btn-danger">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function markAnswered(id) {
+      if (!confirm('Mark this prayer as answered?')) return;
+      try {
+        await apiRequest(`/prayers/${id}/answer`, { method: 'PUT' });
+        showNotification('Prayer marked as answered', 'success');
+        loadPrayers();
+      } catch (err) { alert('Failed to update'); }
+    }
+
+    async function deletePrayer(id) {
+      if (!confirm('Delete this prayer request?')) return;
+      try {
+        await apiRequest(`/prayers/${id}`, { method: 'DELETE' });
+        showNotification('Prayer deleted', 'success');
+        loadPrayers();
+      } catch (err) { alert('Failed to delete'); }
+    }
+
+    loadPrayers();
+  </script>
+</body>
+</html>
