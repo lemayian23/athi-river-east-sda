@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prayer - Athi River East SDA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --sda-blue: #1a2a4f;
+      --sda-light-blue: #2c3e6d;
+      --sda-gold: #c9a03d;
+      --sda-purple: #8e6baf;
+    }
+    .bg-sda-blue { background-color: var(--sda-blue); }
+    .text-sda-gold { color: var(--sda-gold); }
+    .border-sda-gold { border-color: var(--sda-gold); }
+    .bg-sda-purple { background-color: var(--sda-purple); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Header -->
+  <header class="bg-sda-blue text-white shadow-lg">
+    <div class="container mx-auto px-4 py-6 flex flex-col md:flex-row justify-between items-center">
+      <div>
+        <h1 class="text-3xl font-bold">Athi River East SDA Church</h1>
+        <p class="text-blue-200 text-sm">From 6pm Friday to 6pm Saturday</p>
+      </div>
+      <nav class="mt-4 md:mt-0 space-x-4">
+        <a href="/" class="hover:text-sda-gold">Home</a>
+        <a href="/sermons.html" class="hover:text-sda-gold">Sermons</a>
+        <a href="/events.html" class="hover:text-sda-gold">Events</a>
+        <a href="/ministries.html" class="hover:text-sda-gold">Ministries</a>
+        <a href="/prayer.html" class="hover:text-sda-gold font-semibold text-sda-gold">Prayer</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container mx-auto px-4 py-8">
+    <div class="grid md:grid-cols-2 gap-6">
+      <!-- Prayer Request Form -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-bold text-sda-light-blue mb-4">🙏 Submit a Prayer Request</h2>
+        <p class="text-gray-600 mb-4">Share your prayer need with our church family. Our prayer team will intercede for you.</p>
+        
+        <form id="prayerForm">
+          <div class="mb-3">
+            <label for="prayerName" class="block text-sm font-medium text-gray-700">Your Name (optional)</label>
+            <input type="text" id="prayerName" placeholder="e.g., Mary" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sda-gold">
+          </div>
+          <div class="mb-3">
+            <label for="prayerEmail" class="block text-sm font-medium text-gray-700">Email (optional)</label>
+            <input type="email" id="prayerEmail" placeholder="you@example.com" class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sda-gold">
+          </div>
+          <div class="mb-3">
+            <label for="prayerRequest" class="block text-sm font-medium text-gray-700">Prayer Request *</label>
+            <textarea id="prayerRequest" rows="4" placeholder="Share what you'd like us to pray about..." class="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-sda-gold" required></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="flex items-center">
+              <input type="checkbox" id="prayerPublic" class="mr-2">
+              <span class="text-sm text-gray-600">Make this prayer public (shown on this page)</span>
+            </label>
+          </div>
+          <button type="submit" class="bg-sda-purple text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+            Submit Prayer Request
+          </button>
+          <div id="prayerMessage" class="mt-3 text-sm"></div>
+        </form>
+      </div>
+
+      <!-- Public Prayers List -->
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-2xl font-bold text-sda-light-blue mb-4">📋 Prayer Requests</h2>
+        <p class="text-sm text-gray-500 mb-4">Public prayers from our church family</p>
+        <div id="publicPrayers" class="space-y-4 max-h-[500px] overflow-y-auto">
+          <p class="text-gray-500">Loading prayers...</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-sda-blue text-white mt-8 py-6">
+    <div class="container mx-auto px-4 text-center text-sm">
+      <p>Athi River East SDA Church</p>
+      <p class="text-blue-200">© 2026 • Central Kenya Conference</p>
+    </div>
+  </footer>
+
+  <script src="/assets/js/prayer.js"></script>
+</body>
+</html>
