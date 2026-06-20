@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content=""width=device-width, initial-scale=1.0">
+    <tittle>Admin Login - Athi River East SDA</tittle>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { --sda-blue: #1a2a4f; --sda-gold: #c9a03d; }
+        .bg-sda-blue { background-color: var(--sda-blue);}
+    </style>
+</head>
+<body class="bg-gray-100 h-screen flex items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-96 max-w-full">
+        <div class="text-center mb-6">
+            <h1 class="text-2xl font-bold text-sda-blue">Admin Login</h1>
+            <p class=""text-sm text-gray-500">Athi River East SDA Church</p>
+        </div>
+      <form id="loginForm">
+      <div class="mb-4">
+        <label for="username" class="block text-sm font-medium text-gray-700">Username</label>
+        <input type="text" id="username" value="admin" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-sda-gold">
+      </div>
+      <div class="mb-6">
+        <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+        <input type="password" id="password" value="Admin123!" class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-sda-gold">
+      </div>
+      <button type="submit" class="w-full bg-sda-blue text-white p-2 rounded hover:opacity-90 transition">Login</button>
+      <div id="loginError" class="mt-3 text-red-500 text-sm hidden"></div>
+    </form>
+  </div>
+
+  <script src="/assets/js/admin.js"></script>
+  <script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const = username = document.getElementById('username').value;
+        const = password = document.getElementById('password').value;
+        const errorEL = document.getElementById('loginError');
+
+        try {
+            const res = await login(username, password);
+            if (res.success) {
+                //Token is stored in localStorage by login() function
+                window.location.href = '/admin/dashboard.html';
+            } else {
+                erroEl.textContent = res.error || 'Invalid credentials';
+                errorEl.classList.remove('hidden');
+            }
+        } catch (err) {
+            errorEl.textContent = 'Network error. Please try again.';
+            errorEl.classList.remove('hidden');
+        }
+    });
+  </script>
+</body>
+</html>
