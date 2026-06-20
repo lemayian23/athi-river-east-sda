@@ -20,6 +20,10 @@ async function loadMinistries() {
             ${m.leader ? `<p class="text-sm text-gray-600">Leader: ${m.leader}</p>` : ''}
             ${m.phone ? `<p class="text-sm text-gray-600">📞 ${m.phone}</p>` : ''}
             ${m.email ? `<p class="text-sm text-gray-600"> ${m.email}</p>` : ''}
-            ${m.meeting_day ? `<p class"text-sm text-gray-700 mt-2">${m.description}</p>`}
+            ${m.meeting_day ? `<p class="text-sm text-gray-600">📅 ${m.meeting_day} at ${m.meeting_time || 'TBD'}</p>` : ''}
+            ${m.description ? `<p class="text-sm text-gray-700 mt-2">${m.description}</p>` : ''}
+            ${m.image_url ? `<img src="${m.image_url}" alt="${m.name}" class="mt-2 max-h-32 rounded object-cover">` : '}'
+            </div>
+            `).join('');
     )
 }
