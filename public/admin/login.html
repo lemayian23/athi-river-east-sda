@@ -20,6 +20,22 @@
       box-shadow: 0 0 0 3px rgba(201, 160, 61, 0.3);
       border-color: #c9a03d;
     }
+    .btn-login {
+      background: linear-gradient(135deg, #1a2a4f, #2c3e6d);
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+      border: 2px solid #c9a03d;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .btn-login:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 20px rgba(26,42,79,0.4);
+      background: linear-gradient(135deg, #2c3e6d, #4a90e2);
+    }
   </style>
 </head>
 <body class="bg-gradient-sda min-h-screen flex items-center justify-center p-4">
@@ -39,17 +55,30 @@
         <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
         <input type="password" id="password" value="Admin123!" class="w-full px-4 py-2 border border-gray-300 rounded-lg input-focus transition">
       </div>
-      <button type="submit" class="w-full bg-gradient-to-r from-sda-blue to-sda-light-blue text-white py-2 rounded-lg hover:shadow-lg transition transform hover:scale-[1.02]">Sign In</button>
+      
+      <!-- Login Button – clearly visible -->
+      <button type="submit" class="btn-login w-full">🔐 Sign In</button>
+      
       <div id="errorMsg" class="text-red-500 text-sm mt-3 hidden"></div>
+      <div id="debugMsg" class="text-gray-500 text-xs mt-2"></div>
     </form>
   </div>
 
   <script>
+    // Debug: log that script is running
+    console.log('✅ Login page loaded');
+
     document.getElementById('loginForm').addEventListener('submit', async function(e) {
       e.preventDefault();
+      console.log('✅ Form submitted');
+
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
       const errorEl = document.getElementById('errorMsg');
+      const debugEl = document.getElementById('debugMsg');
+
+      errorEl.classList.add('hidden');
+      debugEl.textContent = '🔄 Sending request...';
 
       try {
         const response = await fetch('http://localhost:3000/api/auth/login', {
@@ -57,18 +86,25 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ username, password })
         });
+
+        debugEl.textContent = `📡 Response status: ${response.status}`;
         const data = await response.json();
+        console.log('🔹 Response data:', data);
 
         if (data.success) {
           localStorage.setItem('admin_token', data.token);
+          debugEl.textContent = '✅ Token stored, redirecting...';
           window.location.href = '/admin/dashboard.html';
         } else {
           errorEl.textContent = data.error || 'Invalid credentials';
           errorEl.classList.remove('hidden');
+          debugEl.textContent = '❌ Login failed';
         }
       } catch (err) {
-        errorEl.textContent = 'Network error';
+        console.error(err);
+        errorEl.textContent = 'Network error – check console';
         errorEl.classList.remove('hidden');
+        debugEl.textContent = '❌ Error: ' + err.message;
       }
     });
   </script>
