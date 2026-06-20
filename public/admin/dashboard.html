@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Athi River East SDA</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root {
+      --sda-blue: #1a2a4f;
+      --sda-light-blue: #2c3e6d;
+      --sda-gold: #c9a03d;
+      --sda-purple: #8e6baf;
+    }
+    .bg-sda-blue { background-color: var(--sda-blue); }
+    .text-sda-gold { color: var(--sda-gold); }
+    .hover\:bg-sda-light-blue:hover { background-color: var(--sda-light-blue); }
+    .sidebar-link { display: block; padding: 0.75rem 1.5rem; color: #cbd5e1; transition: background 0.2s; }
+    .sidebar-link:hover { background-color: #2c3e6d; color: white; }
+    .sidebar-link.active { background-color: #2c3e6d; color: white; border-right: 4px solid var(--sda-gold); }
+  </style>
+</head>
+<body class="bg-gray-100 h-screen flex">
+  <!-- Sidebar -->
+  <aside class="w-64 bg-sda-blue text-white flex flex-col">
+    <div class="p-4 text-xl font-bold border-b border-gray-700">Athi River SDA</div>
+    <nav class="flex-1 mt-4">
+      <a href="#" data-page="dashboard" class="sidebar-link active">📊 Dashboard</a>
+      <a href="#" data-page="sermons" class="sidebar-link">📖 Sermons</a>
+      <a href="#" data-page="events" class="sidebar-link">📅 Events</a>
+      <a href="#" data-page="ministries" class="sidebar-link">👥 Ministries</a>
+      <a href="#" data-page="prayers" class="sidebar-link">🙏 Prayers</a>
+      <a href="#" data-page="settings" class="sidebar-link">⚙️ Settings</a>
+    </nav>
+    <div class="p-4 border-t border-gray-700">
+      <button id="logoutBtn" class="w-full text-left text-sm text-gray-400 hover:text-white">🚪 Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="flex-1 overflow-y-auto p-6">
+    <div id="contentArea">
+      <h2 class="text-2xl font-bold text-sda-light-blue">Dashboard</h2>
+      <p class="text-gray-500">Welcome to the admin panel.</p>
+      <div id="statsGrid" class="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
+        <div class="bg-white p-4 rounded shadow text-center">
+          <div class="text-3xl font-bold text-sda-blue" id="sermonCount">-</div>
+          <div class="text-gray-500">Sermons</div>
+        </div>
+        <div class="bg-white p-4 rounded shadow text-center">
+          <div class="text-3xl font-bold text-sda-blue" id="eventCount">-</div>
+          <div class="text-gray-500">Events</div>
+        </div>
+        <div class="bg-white p-4 rounded shadow text-center">
+          <div class="text-3xl font-bold text-sda-blue" id="ministryCount">-</div>
+          <div class="text-gray-500">Ministries</div>
+        </div>
+        <div class="bg-white p-4 rounded shadow text-center">
+          <div class="text-3xl font-bold text-sda-purple" id="prayerCount">-</div>
+          <div class="text-gray-500">Unanswered Prayers</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/assets/js/admin.js"></script>
+  <script>
+    // Check if token exists, else redirect to login
+    if (!getToken()) {
+      window.location.href = '/admin/login.html';
+    }
+
+    // Load dashboard stats
+    async function loadStats() {
+      try {
+        const sermons = await apiRequest('/sermons');
+        document.getElementById('sermonCount').textContent = sermons.length;
+
+        const events = await apiRequest('/events');
+        document.getElementById('eventCount').textContent = events.length;
+
+        const ministries = await apiRequest('/ministries');
+        document.getElementById('ministryCount').textContent = ministries.length;
+
+        const prayers = await apiRequest('/prayers');
+        const unanswered = prayers.filter(p => p.is_answered === 0).length;
+        document.getElementById('prayerCount').textContent = unanswered;
+      } catch (err) {
+        console.error(err);
+        document.getElementById('statsGrid').innerHTML = '<p class="text-red-500">Error loading stats. Please refresh.</p>';
+      }
+    }
+
+    // Sidebar navigation (placeholder for now)
+    document.querySelectorAll('.sidebar-link').forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Remove active class from all
+        document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+        this.classList.add('active');
+        // Show a placeholder message
+        const page = this.dataset.page;
+        document.getElementById('contentArea').innerHTML = `
+          <h2 class="text-2xl font-bold text-sda-light-blue">${page.charAt(0).toUpperCase() + page.slice(1)}</h2>
+          <p class="text-gray-500 mt-2">This section is under construction. Use the API or create/modify content via curl/postman for now.</p>
+          <p class="text-sm text-gray-400 mt-4">We'll add full CRUD forms in the next step.</p>
+        `;
+      });
+    });
+
+    // Logout
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      logout();
+      window.location.href = '/admin/login.html';
+    });
+
+    // Load stats on page load
+    loadStats();
+  </script>
+</body>
+</html>
