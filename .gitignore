@@ -1,0 +1,29 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json  # Optional – many people commit it, but you can ignore if you prefer
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Uploaded files (media)
+uploads/
+public/uploads/
+
+# IDE / OS
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/
+*.log
+
+# Optional – compiled output
+dist/
+build/
